@@ -1,2 +1,7 @@
-/front
 /node_modules
+/dist
+
+.firebaserc
+firebase.json
+firestore-debug.log
+ui-debug.log

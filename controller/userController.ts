@@ -1,32 +1,10 @@
-import * as admin from "firebase-admin";
-
-import { db } from "../config/firebaseConfig";
-import { DAY } from "../util/constants";
 import { Request, Response } from "express";
-import { authMiddleware } from "../middleware/middleware";
-
-import { userRoute } from "../routes/userRoute";
 import ApiError from "../entities/ApiError";
+import { getFirestore } from "firebase-admin/firestore";
 
-userRoute.post('/api/sessionLogin', async (req, res) => {
-  const { idToken } = req.body;
+export const getUsers = async (_: Request, res: Response) => {
 
-  try {
-    const expiresIn = DAY * 7;
-
-    await admin.auth().verifyIdToken(idToken);
-    const sessionCookie = await admin.auth().createSessionCookie(idToken, { expiresIn });
-
-    const options = { maxAge: expiresIn, httpOnly: true, secure: true, path: '/' };
-    res.cookie('session', sessionCookie, options);
-    res.redirect('/');
-  } catch (error) {
-    console.error('Error creating session cookie:', error);
-    res.status(401).send(new ApiError(401, 'Unauthorized'));
-  }
-});
-
-userRoute.get("/api/fetch-user-data", authMiddleware, async (_, res) => {
+  const db = getFirestore();
   try {
     const userData = (await db.collection("user").get()).docs.map((doc) => doc.data());
 
@@ -34,9 +12,11 @@ userRoute.get("/api/fetch-user-data", authMiddleware, async (_, res) => {
   } catch (e) {
     res.status(500).send(new ApiError(e.code, e.message));
   }
-})
+}
 
-userRoute.put("/api/update-user-data", authMiddleware, async (req: Request, res: Response) => {
+export const updateUsers = async (req: Request, res: Response) => {
+  const db = getFirestore();
+
   try {
     const { id, data } = req.body;
 
@@ -46,4 +26,4 @@ userRoute.put("/api/update-user-data", authMiddleware, async (req: Request, res:
   } catch (e) {
     res.status(500).send(new ApiError(e.code, e.message));
   }
-});
+};

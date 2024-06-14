@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import * as admin from 'firebase-admin';
 import ApiError from "../entities/ApiError";
 
-export const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+export const middleware = async (req: Request, res: Response, next: NextFunction) => {
   const sessionCookie = req.cookies.session || '';
 
   try {
